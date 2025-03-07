@@ -751,10 +751,10 @@ const MainContent = ({ isCollapsed, onToggleCollapse, currentChat, setCurrentCha
     };
 
     const suggestions = [
-        { text: "Privacy and Policy", icon: <BookOpen size={18} /> },
-        { text: "Holiday Information", icon: <FileText size={18} /> },
-        { text: "Medical Insurance", icon: <UserPlus size={18} /> },
-        { text: "CV Analyzer", icon: <ClipboardCheck size={18} /> }
+        { text: "Generate Document", icon: <BookOpen size={18} /> },
+        { text: "Translate Document", icon: <FileText size={18} /> },
+        { text: "Summarize Document", icon: <UserPlus size={18} /> },
+        { text: "Document Analyzer", icon: <ClipboardCheck size={18} /> }
     ];
 
     const fileInputRef = useRef<HTMLInputElement>(null);
