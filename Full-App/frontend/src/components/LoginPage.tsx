@@ -32,7 +32,7 @@ const LoginPage = () => {
 
   return (
     <div className="login-container">
-      <h1 className="login-logo" onClick={() => navigate("/")}>HR Agent</h1>
+      <h1 className="login-logo" onClick={() => navigate("/")}>Regulatory Agent</h1>
 
       <div className="login-box">
         <h2 className="login-text">Welcome back</h2>

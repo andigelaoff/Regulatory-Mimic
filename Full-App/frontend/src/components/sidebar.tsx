@@ -132,7 +132,7 @@ const Sidebar = ({
         <>
           <div className="sidebar-header">
             <div className="sidebar-title">
-              <h1>HR Agent</h1>
+              <h1>Regulatory Agent</h1>
             </div>
             <div className="top-buttons">
               <button

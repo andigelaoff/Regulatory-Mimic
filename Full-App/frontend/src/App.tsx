@@ -11,7 +11,7 @@ import LandingPage from './components/AuthPage';
 
 function App() {
   return (
-    <Router basename="/Hr_Agent-Frontend">
+    <Router basename="/Regulatory_Agent-Frontend">
       <AuthProvider>
         <Routes>
           <Route

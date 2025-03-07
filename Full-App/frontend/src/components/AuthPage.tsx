@@ -9,7 +9,7 @@ const AuthPage = () => {
     <div className="container">
       <div className="left-section">
         <div className="left-content">
-          <h1 className="title">Welcome to HR Agent</h1>
+          <h1 className="title">Welcome to Regulatory Agent</h1>
         </div>
       </div>
 

@@ -1003,7 +1003,7 @@ const MainContent = ({ isCollapsed, onToggleCollapse, currentChat, setCurrentCha
 
                         <input
                             type="text"
-                            placeholder="Message HR Agent..."
+                            placeholder="Message Regulatory Agent..."
                             value={inputMessage}
                             onChange={(e) => setInputMessage(e.target.value)}
                             onKeyPress={(e) => {

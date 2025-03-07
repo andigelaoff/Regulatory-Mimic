@@ -48,7 +48,7 @@ const SignupPage = () => {
 
   return (
     <div className="signup-container">
-      <h1 className="signup-logo" onClick={() => navigate("/")}>HR Agent</h1>
+      <h1 className="signup-logo" onClick={() => navigate("/")}>Regulatory Agent</h1>
       <div className="signup-box">
         <h2 className="signup-text">Create an account</h2>
         <p className="signup-login-text">
