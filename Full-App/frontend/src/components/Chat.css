@@ -1,0 +1,397 @@
+/* Chat Container - Fills Entire Right Section */
+.chat-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Chat Messages - Scrollable */
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(140, 127, 127, 0.81);
+  border-radius: 18px;
+}
+
+/* Message Bubble */
+.chat-message {
+  /* max-width: 75%; */
+  padding: .4rem 1rem;
+  font-size: 16px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  border-radius: 20px;
+  display: inline-block;
+  font-family: 'google-sans', sans-serif;
+}
+
+.chat-message *{
+  font-family: 'google-sans', sans-serif;
+}
+
+/* User Message on Right */
+.user-message {
+  background-color: var(--primary);
+  color: white;
+  align-self: flex-end;
+  border-radius: 16px 16px 0 16px;
+  /* position: absolute; */
+}
+
+/* Bot Message on Left */
+.bot-message {
+  color: white;
+  align-self: flex-start;
+  border-radius: 16px 16px 16px 0;
+  width: 100%;
+}
+
+.chat-message p {
+  margin: 0 !important;
+  padding: 0;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  background-color: var(--primary);
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0rem 2rem ;
+  width: 100%;
+}
+
+.profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  border-radius: 50%;
+  border: 1px solid #353434;
+  box-shadow: #2b2f3a 0px 0px 3px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+}
+
+.profile:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+  transition: transform 0.1s ease;
+}
+
+/* Light Mode - Bot Messages */
+/* body.light-mode .bot-message {
+  background-color: #e0e0e0;
+  color: black;
+} */
+
+.horizontal-line {
+  border-top: 1px solid #333;
+}
+
+body.light-mode .horizontal-line {
+  border-top: 1px solid #ccc;
+}
+
+/* Input Container */
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background-color: transparent;
+  width: 100%;
+  height: 60px;
+}
+
+/* Input Box */
+.chat-input-container input {
+  flex-grow: 1;
+  background: #222;
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 25px;
+  outline: none;
+  margin-right: 10px;
+  padding-left: 15px;
+  max-width: 40%;
+}
+
+body.light-mode .chat-input-container input {
+  background: white;
+  color: black;
+}
+
+/* Send Button */
+.send-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-button:hover {
+  background: var(--primary-hover);
+}
+
+/* Chat   s Container */
+.chat-card-container {
+  display: flex;
+  flex-wrap: wrap; /* wrap to multiple lines if needed */
+  gap: 10px;
+  margin: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Pill-style buttons with subtle border */
+.chat-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid #3f3f3f; /* subtle border color */
+  background-color: transparent; /* no solid fill */
+  border-radius: 1rem; /* fully rounded pill shape */
+  color: #fff; /* text color */
+  cursor: pointer;
+  transition:
+    background-color 0.1s ease,
+    transform 0.1s ease;
+}
+
+
+
+/* Hover effect: slightly darken background, scale up */
+.chat-card:hover {
+  background-color: #2b2f3a;
+  /* transform: scale(1.03); */
+}
+
+/* If you want a slightly different hover color in light mode, you can do: */
+body.light-mode .chat-card {
+  border: 1px solid #ccc;
+  color: #333;
+}
+
+body.light-mode .chat-card:hover {
+  background-color: #e0e0e0;
+}
+
+/* Card Icons */
+.chat-card i {
+  font-size: 16px; /* a bit bigger for clarity */
+  margin-bottom: 0; /* remove bottom margin so icon is vertically centered */
+}
+
+/* Card Text */
+.chat-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.chat-input {
+  width: 50%;
+}
+
+/* Attach Button */
+.attach-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: rgb(181, 173, 173);
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.attach-button:hover {
+  background-color: #b6b3b338;
+  cursor: pointer;
+}
+
+.attach-button input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Sent Files (Display Below Chat Messages) */
+.sent-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* File Preview Container */
+.file-preview-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto; /* Left-to-right scrolling */
+  overflow-y: hidden;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin: 0 auto;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #666 transparent;
+  max-width: 90%;
+  width: 90%;
+  min-height: 80px;
+  height: auto;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Webkit Scrollbar (Chrome, Edge, Safari) */
+.file-preview-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.file-preview-container::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 4px;
+}
+
+.file-preview-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Individual File Preview */
+.file-preview {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  color: white;
+  width: 150px;
+  height: 60px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+/* File Icon */
+.file-icon {
+  font-size: 18px;
+  margin-right: 6px;
+}
+
+/* File Name */
+.file-name {
+  font-size: 12px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Remove File Button */
+.remove-file {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: white;
+  transition: background 0.2s ease;
+}
+
+.remove-file:hover {
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+}
+
+/* Light Mode - File Preview Background */
+body.light-mode .file-preview-container {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Light Mode - File Preview */
+body.light-mode .file-preview {
+  background: rgba(0, 0, 0, 0.05);
+  color: black;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Light Mode - Remove File Button */
+body.light-mode .remove-file {
+  background: rgba(0, 0, 0, 0.15);
+  color: black;
+}
+
+body.light-mode .remove-file:hover {
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+}
+
+/* Light Mode - Ensure File Name is White in User Messages */
+body.light-mode .user-message .file-name {
+  color: white !important;
+}
+
+/* For message blocks and rating container */
+.chat-message-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  width: 50%;
+}
+
+.rating-container {
+  margin-top: 4px;
+  margin-left: 10px;
+}

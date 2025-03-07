@@ -1,0 +1,73 @@
+.toggle-container {
+    width: 75px;
+    height: 35px;
+    border-radius: 50px;
+    border: 0px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 3px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.toggle {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    transition: background 0.3s ease;
+}
+
+.toggle.dark {
+    background: black;
+    justify-content: flex-end;
+}
+
+.toggle.light {
+    background: white;
+    justify-content: flex-start;
+}
+
+.toggle-circle {
+    width: 27px;
+    height: 27px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    left: 4px;
+}
+
+.dark .toggle-circle {
+    transform: translateX(35px);
+    background: white;
+    box-shadow: none;
+}
+
+.light .toggle-circle {
+    transform: translateX(0);
+    background: black;
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.5), inset -3px -3px 6px rgba(255, 255, 255, 0.2);
+}
+
+.icon {
+    position: absolute;
+    font-size: 16px;
+}
+
+.sun {
+    right: 14px;
+    color: black;
+}
+
+.moon {
+    left: 10px;
+    color: white;
+}
