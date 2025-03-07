@@ -149,7 +149,7 @@ const MainContent = ({ isCollapsed, onToggleCollapse, currentChat, setCurrentCha
         let isComplete = false;
         let lastWord = '';
 
-        const eventSource = new EventSource(`http://127.0.0.1:8000/api/title?model=${selectedModel}&prompt=${encodeURIComponent(prompt)}`);
+        const eventSource = new EventSource(`http://regulatory-mimic-alb-1783829767.us-east-1.elb.amazonaws.com:8000/api/title?model=${selectedModel}&prompt=${encodeURIComponent(prompt)}`);
 
         const updateTitle = (title: string, isTyping = true) => {
             const existingChats = JSON.parse(localStorage.getItem('chatHistory') || '[]');
@@ -390,7 +390,7 @@ const MainContent = ({ isCollapsed, onToggleCollapse, currentChat, setCurrentCha
             wsRef.current = null;
         }
 
-        const eventSource = new EventSource(`http://127.0.0.1:8000/api/ask?model=${selectedModel}&q=${encodeURIComponent(messageToSend)}`);
+        const eventSource = new EventSource(`http://regulatory-mimic-alb-1783829767.us-east-1.elb.amazonaws.com:8000/api/ask?model=${selectedModel}&q=${encodeURIComponent(messageToSend)}`);
         wsRef.current = eventSource;
         let accumulatedContent = '';
         let isComplete = false;
@@ -510,7 +510,7 @@ const MainContent = ({ isCollapsed, onToggleCollapse, currentChat, setCurrentCha
         let isComplete = false;
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/upload?model=${selectedModel}`, {
+            const response = await fetch(`http://regulatory-mimic-alb-1783829767.us-east-1.elb.amazonaws.com:8000/api/upload?model=${selectedModel}`, {
                 method: 'POST',
                 body: formData
             });
