@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
     const signIn = async (email: string, password: string) => {
         try {
-            const response = await fetch('http://44.204.66.30:8000/api/signin', {
+            const response = await fetch('http://localhost:8000/api/signin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signUp = async (email: string, password: string) => {
         try {
-            const response = await fetch('http://44.204.66.30:8000/api/signup', {
+            const response = await fetch('http://localhost:8000/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const confirmSignUp = async (email: string, confirmationCode: string) => {
         try {
-            const response = await fetch('http://44.204.66.30:8000/api/confirm-signup', {
+            const response = await fetch('http://localhost:8000/api/confirm-signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
