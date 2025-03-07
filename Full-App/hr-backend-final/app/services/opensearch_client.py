@@ -16,7 +16,7 @@ if not settings_env.OPENAI_API_KEY:
 openai.api_key = settings_env.OPENAI_API_KEY
 
 
-session = boto3.Session(profile_name='AWSPowerUserAccess-586794481131')
+session = boto3.Session(profile_name='AWSPowerUserAccess')
 credentials = session.get_credentials().get_frozen_credentials()
 
 awsauth = AWS4Auth(

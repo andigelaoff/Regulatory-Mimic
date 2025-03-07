@@ -16,7 +16,7 @@ class CognitoClient:
         self.client_secret = settings.COGNITO_CLIENT_SECRET
         self.region = settings.AWS_REGION
  
-        self.boto3_session = boto3.Session(profile_name='AWSPowerUserAccess-586794481131')
+        self.boto3_session = boto3.Session(profile_name='AWSPowerUserAccess')
         self.cognito_client = self.boto3_session.client('cognito-idp', region_name=self.region)
  
     def get_secret_hash(self, username: str) -> str:
