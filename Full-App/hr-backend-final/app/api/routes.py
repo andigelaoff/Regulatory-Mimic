@@ -41,7 +41,7 @@ async def sign_in(request: SignInRequest):
 async def ask_question(model:str, q: str = Query(..., title="Question")):
     async def generate_stream():
         try:
-            async for content in generate_answer(q,model):
+            async for content in generate_answer(q,model='gpt-4o'):
                 print(f"data: {json.dumps({'content': content})}\n\n")
                 yield f"data: {json.dumps({'content': content})}\n\n"
         except Exception as e:
