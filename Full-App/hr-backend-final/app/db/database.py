@@ -1,9 +1,12 @@
-from pymongo import MongoClient
-from app.core.config import get_settings
+import boto3
 
-settings = get_settings()
-client = MongoClient(settings.MONGODB_URL)
-# Not finished still working on this
-db = client[settings.DB_NAME]
-employees_collection = db['employees']
-agents_collection = db['agents']
+# Initialize session and DynamoDB resource
+AWS_REGION = "us-east-1"
+session = boto3.Session(region_name=AWS_REGION, profile_name="AWSPowerUserAccess")
+
+dynamodb = session.resource("dynamodb", region_name=AWS_REGION)
+
+# Define the tables
+chat_table = dynamodb.Table("RegulatoryChatHistory")
+sessions_table = dynamodb.Table("RegulatorySessions")
+
