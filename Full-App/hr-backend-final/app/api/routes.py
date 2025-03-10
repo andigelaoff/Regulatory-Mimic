@@ -11,6 +11,10 @@ from langchain.chat_models import ChatOpenAI
 import io
 import httpx
 import json
+from fastapi import APIRouter, HTTPException, status
+from app.models.schemas import SessionCreateRequest, SessionResponse, ChatMessageRequest, ChatMessageResponse
+from app.db.database import create_session, list_sessions, save_chat_message, get_chat_history
+from typing import List
 
 
 settings = get_settings()
@@ -153,3 +157,64 @@ async def generate_chat_title( model:str, prompt: str = Query(..., description="
             'Connection': 'keep-alive',
         }
     )
+
+# Chat history
+
+@router.post("/sessions/create", response_model=SessionResponse)
+async def create_session_endpoint(session_data: SessionCreateRequest):
+    try:
+        session_item = create_session(session_data.sessionName, session_data.userId)
+        return session_item
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create session: {str(e)}"
+        )
+
+# Endpoint to list all sessions for a user
+@router.get("/sessions/list", response_model=List[SessionResponse])
+async def list_sessions_endpoint(userId: str):
+    try:
+        sessions = list_sessions(userId)
+        return sessions
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve sessions: {str(e)}"
+        )
+
+# Endpoint to save a chat message and fetch bot response
+@router.post("/chat/send", response_model=ChatMessageResponse)
+async def send_chat_message_endpoint(chat_data: ChatMessageRequest):
+    try:
+        chat_item = save_chat_message(chat_data.userId, chat_data.sessionId, chat_data.message)
+        return ChatMessageResponse(
+            userId=chat_item["UserID"],
+            sessionId=chat_item["sessionId"],
+            message=chat_item["message"],
+            bot_response=chat_item["bot_response"],
+            timestamp=chat_item["timestamp"]
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send chat message: {str(e)}"
+        )
+
+# Endpoint to fetch chat history for a specific session
+@router.get("/chat/history", response_model=List[ChatMessageResponse])
+async def get_chat_history_endpoint(userId: str, sessionId: str):
+    try:
+        chat_history = get_chat_history(userId, sessionId)
+        return [ChatMessageResponse(
+            userId=item["UserID"],
+            sessionId=item["sessionId"],
+            message=item["message"],
+            bot_response=item["bot_response"],
+            timestamp=item["timestamp"]
+        ) for item in chat_history]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve chat history: {str(e)}"
+        )

@@ -35,3 +35,29 @@ class ConfirmSignUpRequest(BaseModel):
 class SignInRequest(BaseModel):
     email: EmailStr
     password: str
+
+
+# Chat History
+
+class SessionCreateRequest(BaseModel):
+    sessionName: str
+    userId: str  # User ID from Cognito (will be used later)
+
+class ChatMessageRequest(BaseModel):
+    userId: str
+    sessionId: str
+    message: str
+
+class SessionResponse(BaseModel):
+    sessionId: str
+    sessionName: str
+    userId: str
+    createdAt: int
+    active: bool
+
+class ChatMessageResponse(BaseModel):
+    userId: str
+    sessionId: str
+    message: str
+    bot_response: str
+    timestamp: int
