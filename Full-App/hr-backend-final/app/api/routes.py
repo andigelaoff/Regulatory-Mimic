@@ -189,7 +189,7 @@ async def send_chat_message_endpoint(chat_data: ChatMessageRequest):
     try:
         chat_item = save_chat_message(chat_data.userId, chat_data.sessionId, chat_data.message)
         return ChatMessageResponse(
-            userId=chat_item["UserID"],
+            userId=chat_item["userId"],
             sessionId=chat_item["sessionId"],
             message=chat_item["message"],
             bot_response=chat_item["bot_response"],
@@ -207,7 +207,7 @@ async def get_chat_history_endpoint(userId: str, sessionId: str):
     try:
         chat_history = get_chat_history(userId, sessionId)
         return [ChatMessageResponse(
-            userId=item["UserID"],
+            userId=item["userId"],  # Ensure this matches the response from get_chat_history
             sessionId=item["sessionId"],
             message=item["message"],
             bot_response=item["bot_response"],

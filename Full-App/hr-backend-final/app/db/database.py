@@ -52,41 +52,57 @@ def list_sessions(user_id: str):
 
 # Function to save a chat message
 def save_chat_message(user_id: str, session_id: str, message: str):
-    timestamp = int(time.time())
-    bot_response = f"Bot response to: {message}"
-    chat_item = {
-        "UserID": user_id,
-        "sessionId": session_id,
-        "message": message,
-        "bot_response": bot_response,
-        "timestamp": timestamp,
-        "sessionIdTimestamp": f"{session_id}#{timestamp}",
-    }
-    chat_table.put_item(Item=chat_item)
+    try:
+        timestamp = int(time.time())
+        bot_response = f"Bot response to: {message}"
+        chat_item = {
+            "UserID": user_id,  # Must match the partition key in DynamoDB (case-sensitive)
+            "sessionIdTimestamp": f"{session_id}#{timestamp}",  # Must match the sort key in DynamoDB
+            "sessionId": session_id,
+            "message": message,
+            "bot_response": bot_response,
+            "timestamp": timestamp,
+        }
+        # Log the item before saving for debugging
+        print("Saving chat item:", chat_item)
 
-    # Return the chat_item with correct field names
-    return {
-        "userId": user_id,
-        "sessionId": session_id,
-        "message": message,
-        "bot_response": bot_response,
-        "timestamp": timestamp,
-    }
+        # Save the item to DynamoDB
+        chat_table.put_item(Item=chat_item)
+
+        # Return the chat_item with correct field names
+        return {
+            "userId": user_id,
+            "sessionId": session_id,
+            "message": message,
+            "bot_response": bot_response,
+            "timestamp": timestamp,
+        }
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error saving chat message: {str(e)}")
+        raise e
 
 # Function to get chat history
 def get_chat_history(user_id: str, session_id: str):
-    response = chat_table.query(
-        KeyConditionExpression=Key("UserID").eq(user_id) & Key("sessionIdTimestamp").begins_with(f"{session_id}#")
-    )
-    # Ensure the items are returned with correct keys
-    chat_history = [
-        {
-            "userId": item["UserID"],  # Explicitly renaming to match the response model
-            "sessionId": item["sessionId"],
-            "message": item["message"],
-            "bot_response": item["bot_response"],
-            "timestamp": item["timestamp"],
-        }
-        for item in response.get("Items", [])
-    ]
-    return chat_history
+    try:
+        # Query DynamoDB for chat history
+        response = chat_table.query(
+            KeyConditionExpression=Key("UserID").eq(user_id) & Key("sessionIdTimestamp").begins_with(f"{session_id}#")
+        )
+        
+        # Ensure the items are returned with correct keys
+        chat_history = [
+            {
+                "userId": item["UserID"],  # Access the partition key
+                "sessionId": item["sessionId"],
+                "message": item["message"],
+                "bot_response": item["bot_response"],
+                "timestamp": item["timestamp"],
+            }
+            for item in response.get("Items", [])
+        ]
+        return chat_history
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error retrieving chat history: {str(e)}")
+        raise e
