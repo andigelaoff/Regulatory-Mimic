@@ -37,6 +37,26 @@ class SignInRequest(BaseModel):
     password: str
 
 
+
+
+
+class SignUpResponse(BaseModel):
+    success: bool
+    message: str
+    user_sub: str  # Include the `sub` in the response
+
+class ConfirmSignUpResponse(BaseModel):
+    success: bool
+    message: str
+
+class SignInResponse(BaseModel):
+    access_token: str
+    id_token: str
+    refresh_token: str
+    user_sub: str  # Include th
+    
+
+
 # Chat History
 
 class SessionCreateRequest(BaseModel):

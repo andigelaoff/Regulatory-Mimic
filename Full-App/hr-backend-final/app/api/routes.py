@@ -15,6 +15,10 @@ from fastapi import APIRouter, HTTPException, status
 from app.models.schemas import SessionCreateRequest, SessionResponse, ChatMessageRequest, ChatMessageResponse
 from app.db.database import create_session, list_sessions, save_chat_message, get_chat_history
 from typing import List
+from app.models.schemas import SignUpResponse, ConfirmSignUpResponse, SignInResponse
+from fastapi import Depends
+
+
 
 
 settings = get_settings()
@@ -26,17 +30,15 @@ router = APIRouter()
 document_store: Dict[str, dict] = {}
 
 
-@router.post("/signup")
+@router.post("/signup", response_model=SignUpResponse)
 async def sign_up(request: SignUp):
     return await cognito.sign_up(request.email, request.password)
 
-
-@router.post("/confirm-signup")
+@router.post("/confirm-signup", response_model=ConfirmSignUpResponse)
 async def confirm_sign_up(request: ConfirmSignUpRequest):
     return await cognito.confirm_sign_up(request.email, request.confirmation_code)
 
-
-@router.post("/signin")
+@router.post("/signin", response_model=SignInResponse)
 async def sign_in(request: SignInRequest):
     return await cognito.sign_in(request.email, request.password)
 
@@ -161,9 +163,12 @@ async def generate_chat_title( model:str, prompt: str = Query(..., description="
 # Chat history
 
 @router.post("/sessions/create", response_model=SessionResponse)
-async def create_session_endpoint(session_data: SessionCreateRequest):
+async def create_session_endpoint(
+    session_data: SessionCreateRequest,
+    user_sub: str = Depends(cognito.get_current_user)  # Decode the `sub` from the token
+):
     try:
-        session_item = create_session(session_data.sessionName, session_data.userId)
+        session_item = create_session(session_data.sessionName, user_sub)  # Use the `sub` as the `UserID`
         return session_item
     except Exception as e:
         raise HTTPException(
@@ -173,9 +178,11 @@ async def create_session_endpoint(session_data: SessionCreateRequest):
 
 # Endpoint to list all sessions for a user
 @router.get("/sessions/list", response_model=List[SessionResponse])
-async def list_sessions_endpoint(userId: str):
+async def list_sessions_endpoint(
+    user_sub: str = Depends(cognito.get_current_user)  # Decode the `sub` from the token
+):
     try:
-        sessions = list_sessions(userId)
+        sessions = list_sessions(user_sub)  # Use the `sub` as the `UserID`
         return sessions
     except Exception as e:
         raise HTTPException(
@@ -185,15 +192,18 @@ async def list_sessions_endpoint(userId: str):
 
 # Endpoint to save a chat message and fetch bot response
 @router.post("/chat/send", response_model=ChatMessageResponse)
-async def send_chat_message_endpoint(chat_data: ChatMessageRequest):
+async def send_chat_message_endpoint(
+    chat_data: ChatMessageRequest,
+    user_sub: str = Depends(cognito.get_current_user)  # Decode the `sub` from the token
+):
     try:
-        chat_item = save_chat_message(chat_data.userId, chat_data.sessionId, chat_data.message)
+        chat_item = save_chat_message(user_sub, chat_data.sessionId, chat_data.message)  # Use the `sub` as the `UserID`
         return ChatMessageResponse(
-            userId=chat_item["userId"],
+            userId=user_sub,  # Use the `sub` as the `UserID`
             sessionId=chat_item["sessionId"],
             message=chat_item["message"],
             bot_response=chat_item["bot_response"],
-            timestamp=chat_item["timestamp"]
+            timestamp=chat_item["timestamp"],
         )
     except Exception as e:
         raise HTTPException(
@@ -203,15 +213,18 @@ async def send_chat_message_endpoint(chat_data: ChatMessageRequest):
 
 # Endpoint to fetch chat history for a specific session
 @router.get("/chat/history", response_model=List[ChatMessageResponse])
-async def get_chat_history_endpoint(userId: str, sessionId: str):
+async def get_chat_history_endpoint(
+    sessionId: str,
+    user_sub: str = Depends(cognito.get_current_user)  # Decode the `sub` from the token
+):
     try:
-        chat_history = get_chat_history(userId, sessionId)
+        chat_history = get_chat_history(user_sub, sessionId)  # Use the `sub` as the `UserID`
         return [ChatMessageResponse(
-            userId=item["userId"],  # Ensure this matches the response from get_chat_history
+            userId=user_sub,  # Use the `sub` as the `UserID`
             sessionId=item["sessionId"],
             message=item["message"],
             bot_response=item["bot_response"],
-            timestamp=item["timestamp"]
+            timestamp=item["timestamp"],
         ) for item in chat_history]
     except Exception as e:
         raise HTTPException(

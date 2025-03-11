@@ -1,8 +1,14 @@
 import time
 import uuid
 import boto3
+import logging
 from boto3.dynamodb.conditions import Key
 
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# AWS Configuration
 AWS_REGION = "us-east-1"
 
 # Initialize session with the correct profile (AWSPowerUserAccess)
@@ -13,42 +19,59 @@ dynamodb = session.resource("dynamodb")
 chat_table = dynamodb.Table("RegulatoryChatHistory")
 sessions_table = dynamodb.Table("RegulatorySessions")
 
+# Constants for DynamoDB keys
+USER_ID_KEY = "UserID"  # Partition key
+SESSION_ID_TIMESTAMP_KEY = "sessionIdTimestamp"  # Sort key for chat history
+SESSION_ID_KEY = "sessionId"  # Sort key for sessions
+
 # Function to create a session
 def create_session(session_name: str, user_id: str):
-    session_id = f"{str(uuid.uuid4())}-{int(time.time())}"
-    session_item = {
-        "UserID": user_id,  # Partition Key
-        "sessionId": session_id,  # Sort Key
-        "sessionName": session_name,
-        "createdAt": int(time.time()),
-        "active": True,
-    }
-    sessions_table.put_item(Item=session_item)
+    try:
+        session_id = f"{str(uuid.uuid4())}-{int(time.time())}"
+        session_item = {
+            USER_ID_KEY: user_id,  # Partition Key
+            SESSION_ID_KEY: session_id,  # Sort Key
+            "sessionName": session_name,
+            "createdAt": int(time.time()),
+            "active": True,
+        }
+        sessions_table.put_item(Item=session_item)
 
-    # Return the session_item with keys matching the SessionResponse model
-    return {
-        "sessionId": session_id,
-        "sessionName": session_name,
-        "userId": user_id,  # Adding 'userId' explicitly here
-        "createdAt": session_item["createdAt"],
-        "active": session_item["active"],
-    }
+        logger.info(f"Session created: {session_id} for user: {user_id}")
+
+        # Return the session_item with keys matching the SessionResponse model
+        return {
+            "sessionId": session_id,
+            "sessionName": session_name,
+            "userId": user_id,
+            "createdAt": session_item["createdAt"],
+            "active": session_item["active"],
+        }
+    except Exception as e:
+        logger.error(f"Error creating session: {str(e)}")
+        raise e
 
 # Function to list sessions for a user
 def list_sessions(user_id: str):
-    response = sessions_table.query(KeyConditionExpression=Key("UserID").eq(user_id))
-    # Ensure the items are returned with correct keys
-    sessions = [
-        {
-            "sessionId": item["sessionId"],
-            "sessionName": item["sessionName"],
-            "userId": item["UserID"],  # Explicitly renaming to match the response model
-            "createdAt": item["createdAt"],
-            "active": item["active"],
-        }
-        for item in response.get("Items", [])
-    ]
-    return sessions
+    try:
+        response = sessions_table.query(KeyConditionExpression=Key(USER_ID_KEY).eq(user_id))
+        logger.info(f"Retrieved {len(response.get('Items', []))} sessions for user: {user_id}")
+
+        # Ensure the items are returned with correct keys
+        sessions = [
+            {
+                "sessionId": item[SESSION_ID_KEY],
+                "sessionName": item["sessionName"],
+                "userId": item[USER_ID_KEY],
+                "createdAt": item["createdAt"],
+                "active": item["active"],
+            }
+            for item in response.get("Items", [])
+        ]
+        return sessions
+    except Exception as e:
+        logger.error(f"Error listing sessions: {str(e)}")
+        raise e
 
 # Function to save a chat message
 def save_chat_message(user_id: str, session_id: str, message: str):
@@ -56,15 +79,14 @@ def save_chat_message(user_id: str, session_id: str, message: str):
         timestamp = int(time.time())
         bot_response = f"Bot response to: {message}"
         chat_item = {
-            "UserID": user_id,  # Must match the partition key in DynamoDB (case-sensitive)
-            "sessionIdTimestamp": f"{session_id}#{timestamp}",  # Must match the sort key in DynamoDB
-            "sessionId": session_id,
+            USER_ID_KEY: user_id,  # Partition key
+            SESSION_ID_TIMESTAMP_KEY: f"{session_id}#{timestamp}",  # Sort key
+            SESSION_ID_KEY: session_id,
             "message": message,
             "bot_response": bot_response,
             "timestamp": timestamp,
         }
-        # Log the item before saving for debugging
-        print("Saving chat item:", chat_item)
+        logger.info(f"Saving chat item: {chat_item}")
 
         # Save the item to DynamoDB
         chat_table.put_item(Item=chat_item)
@@ -78,8 +100,7 @@ def save_chat_message(user_id: str, session_id: str, message: str):
             "timestamp": timestamp,
         }
     except Exception as e:
-        # Log the error for debugging
-        print(f"Error saving chat message: {str(e)}")
+        logger.error(f"Error saving chat message: {str(e)}")
         raise e
 
 # Function to get chat history
@@ -87,14 +108,15 @@ def get_chat_history(user_id: str, session_id: str):
     try:
         # Query DynamoDB for chat history
         response = chat_table.query(
-            KeyConditionExpression=Key("UserID").eq(user_id) & Key("sessionIdTimestamp").begins_with(f"{session_id}#")
+            KeyConditionExpression=Key(USER_ID_KEY).eq(user_id) & Key(SESSION_ID_TIMESTAMP_KEY).begins_with(f"{session_id}#")
         )
-        
+        logger.info(f"Retrieved {len(response.get('Items', []))} chat messages for session: {session_id}")
+
         # Ensure the items are returned with correct keys
         chat_history = [
             {
-                "userId": item["UserID"],  # Access the partition key
-                "sessionId": item["sessionId"],
+                "userId": item[USER_ID_KEY],
+                "sessionId": item[SESSION_ID_KEY],
                 "message": item["message"],
                 "bot_response": item["bot_response"],
                 "timestamp": item["timestamp"],
@@ -103,6 +125,5 @@ def get_chat_history(user_id: str, session_id: str):
         ]
         return chat_history
     except Exception as e:
-        # Log the error for debugging
-        print(f"Error retrieving chat history: {str(e)}")
+        logger.error(f"Error retrieving chat history: {str(e)}")
         raise e
