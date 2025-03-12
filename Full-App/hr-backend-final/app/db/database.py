@@ -74,16 +74,24 @@ def list_sessions(user_id: str):
         raise e
 
 # Function to save a chat message
-def save_chat_message(user_id: str, session_id: str, message: str):
+def save_chat_message(user_id: str, session_id: str, message: str, bot_response: str, timestamp: int):
+    """
+    Saves a chat message and bot response to DynamoDB.
+
+    Args:
+        user_id (str): The user's ID.
+        session_id (str): The session ID.
+        message (str): The user's message.
+        bot_response (str): The bot's response.
+        timestamp (int): The timestamp for the conversation turn.
+    """
     try:
-        timestamp = int(time.time())
-        bot_response = f"Bot response to: {message}"
         chat_item = {
-            USER_ID_KEY: user_id,  # Partition key
-            SESSION_ID_TIMESTAMP_KEY: f"{session_id}#{timestamp}",  # Sort key
-            SESSION_ID_KEY: session_id,
-            "message": message,
-            "bot_response": bot_response,
+            "UserID": user_id,  # Partition key
+            "sessionIdTimestamp": f"{session_id}#{timestamp}",  # Sort key
+            "sessionId": session_id,
+            "message": message,  # User's message
+            "bot_response": bot_response,  # Bot's response
             "timestamp": timestamp,
         }
         logger.info(f"Saving chat item: {chat_item}")
@@ -91,14 +99,7 @@ def save_chat_message(user_id: str, session_id: str, message: str):
         # Save the item to DynamoDB
         chat_table.put_item(Item=chat_item)
 
-        # Return the chat_item with correct field names
-        return {
-            "userId": user_id,
-            "sessionId": session_id,
-            "message": message,
-            "bot_response": bot_response,
-            "timestamp": timestamp,
-        }
+        return chat_item
     except Exception as e:
         logger.error(f"Error saving chat message: {str(e)}")
         raise e

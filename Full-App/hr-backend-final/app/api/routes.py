@@ -21,6 +21,7 @@ from fastapi import Depends
 
 
 
+
 settings = get_settings()
 cognito = CognitoClient()
 
@@ -44,14 +45,15 @@ async def sign_in(request: SignInRequest):
 
 
 @router.get("/ask")
-async def ask_question(model:str, q: str = Query(..., title="Question")):
+async def ask_question(
+    model: str,
+    q: str = Query(..., title="Question"),
+    session_id: str = Query(..., title="Session ID"),
+    user_sub: str = Depends(cognito.get_current_user)  # Extract user_sub from the token
+):
     async def generate_stream():
-        try:
-            async for content in generate_answer(q,model):
-                print(f"data: {json.dumps({'content': content})}\n\n")
-                yield f"data: {json.dumps({'content': content})}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        async for content in generate_answer(q, model, user_sub, session_id):
+            yield f"data: {json.dumps({'content': content})}\n\n"
 
     return StreamingResponse(
         generate_stream(),
@@ -190,26 +192,6 @@ async def list_sessions_endpoint(
             detail=f"Failed to retrieve sessions: {str(e)}"
         )
 
-# Endpoint to save a chat message and fetch bot response
-@router.post("/chat/send", response_model=ChatMessageResponse)
-async def send_chat_message_endpoint(
-    chat_data: ChatMessageRequest,
-    user_sub: str = Depends(cognito.get_current_user)  # Decode the `sub` from the token
-):
-    try:
-        chat_item = save_chat_message(user_sub, chat_data.sessionId, chat_data.message)  # Use the `sub` as the `UserID`
-        return ChatMessageResponse(
-            userId=user_sub,  # Use the `sub` as the `UserID`
-            sessionId=chat_item["sessionId"],
-            message=chat_item["message"],
-            bot_response=chat_item["bot_response"],
-            timestamp=chat_item["timestamp"],
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to send chat message: {str(e)}"
-        )
 
 # Endpoint to fetch chat history for a specific session
 @router.get("/chat/history", response_model=List[ChatMessageResponse])
