@@ -50,9 +50,16 @@ async def ask_question(
     q: str = Query(..., title="Question"),
     session_id: str = Query(..., title="Session ID"),
     user_sub: str = Depends(cognito.get_current_user)  # Extract user_sub from the token
-):
+):  
+    
+    preloaded_history = [
+        {"role": "user", "content": "how much did the company earn last year?"},
+        {"role": "assistant", "content": "The company earned $1.5 million last year."}
+    ]
+
     async def generate_stream():
-        async for content in generate_answer(q, model, user_sub, session_id):
+        
+        async for content in generate_answer(q, model, user_sub, session_id, preloaded_history):
             yield f"data: {json.dumps({'content': content})}\n\n"
 
     return StreamingResponse(

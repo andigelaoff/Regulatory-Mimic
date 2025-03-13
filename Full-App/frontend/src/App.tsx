@@ -62,9 +62,9 @@ function App() {
           <Route
             path="/chat"
             element={
-              <ProtectedRoute requireAuth={true}>
+              // <ProtectedRoute requireAuth={true}>
                 <ChatPage />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
 
