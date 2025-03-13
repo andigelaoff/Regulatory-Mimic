@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -6,7 +5,6 @@ import LoginPage from './components/LoginPage';
 import SignUpPage from './components/SignUp';
 import ChatPage from './ChatPage';
 import VerificationPage from './components/VerificationPage';
-import ForgotPassword from './components/ForgotPassword';
 import LandingPage from './components/AuthPage';
 
 function App() {
@@ -62,9 +60,9 @@ function App() {
           <Route
             path="/chat"
             element={
-              // <ProtectedRoute requireAuth={true}>
+              <ProtectedRoute requireAuth={true}>
                 <ChatPage />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 

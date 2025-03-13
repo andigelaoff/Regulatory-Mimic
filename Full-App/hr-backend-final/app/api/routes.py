@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Query
+from fastapi import APIRouter, UploadFile, File, Query, Header
 from app.auth.cognito import CognitoClient
 from app.models.schemas import SignUp, ConfirmSignUpRequest, SignInRequest
 from typing import Dict
@@ -227,3 +227,13 @@ async def get_chat_history_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve chat history: {str(e)}"
         )
+
+@router.get("/validate-token")
+async def validate_token(authorization: str = Header(...)):
+    token = authorization.split(" ")[1] if " " in authorization else authorization
+
+    user_info = cognito.validate_token(token)
+    if user_info:
+        return {"valid_token": True}
+    # return {"valid": True, "user_info": user_info}
+    return {"valid_token": False}

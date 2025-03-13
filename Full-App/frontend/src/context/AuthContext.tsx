@@ -1,7 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import Cookies from 'js-cookie'
 
-
+export interface SignInResponse {
+  access_token: string;
+  id_token: string;
+  refresh_token: string;
+  user_sub: string
+}
 interface AuthContextType {
     isAuthenticated: boolean;
     userEmail: string | null;
@@ -19,30 +26,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [tempEmail, setTempEmail] = useState<string | null>(null);
     const navigate = useNavigate();
+    let valid_token = false
 
 
     useEffect(() => {
-        const token = localStorage.getItem('accessToken');
-        const storedEmail = localStorage.getItem('userEmail');
+        const token = Cookies.get('id_token');
+        const storedEmail = Cookies.get('userEmail');
 
         if (token && storedEmail) {
-            setIsAuthenticated(true);
-            setUserEmail(storedEmail);
+           axios.get("http://localhost:8000/api/validate-token", {
+                headers: { Authorization: `Bearer ${token}`}
+            }).then((res)=>{
+                valid_token = res.data.valid_token
+                setIsAuthenticated(valid_token)
+                setUserEmail(storedEmail)
+            }).catch((err) => {
+                console.log(err)
+                Cookies.remove('id_token')
+                Cookies.remove('userEmail')
+                setIsAuthenticated(valid_token)
+            })
         }
     }, []);
     const signIn = async (email: string, password: string) => {
         try {
-            const response = await fetch('http://localhost:8000/api/signin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+            const response = await axios.post<SignInResponse>('http://localhost:8000/api/signin', {
+                email,
+                password,
             });
-            if (!response.ok) throw new Error('Sign in failed');
 
-            const data = await response.json();
-
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('userEmail', email);
+            Cookies.set('id_token', response.data.id_token)
+            Cookies.set('userEmail', email)
 
             setIsAuthenticated(true);
             setUserEmail(email);
@@ -90,9 +104,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const signOut = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('chatHistory');
+        Cookies.remove('id_token');
+        Cookies.remove('userEmail');
+        Cookies.remove('chatHistory');
 
         setIsAuthenticated(false);
         setUserEmail(null);

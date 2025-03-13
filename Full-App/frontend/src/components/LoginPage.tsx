@@ -1,12 +1,12 @@
 import React from 'react';
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import "./LoginPage.css";
 // Commented out imports since image files are missing
 import googleLogo from "../assets/images/google-logo.png";
 import microsoftLogo from "../assets/images/microsoft-logo.png";
-import { Eye, EyeOff, AlertCircle } from "lucide-react"; // Using lucide-react
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import {useAuth} from "../context/AuthContext.tsx";
 
 const LoginPage = () => {
   const { signIn } = useAuth();
@@ -20,12 +20,16 @@ const LoginPage = () => {
     setShowPassword(!showPassword);
   };
 
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("handleLogin triggered");  // <--- Debug log
+
     try {
       await signIn(email, password);
       navigate('/chat'); 
     } catch (err) {
+      console.log(err)
       setError('Incorrect email or password.');
     }
   };

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 AWS_REGION = "us-east-1"
 
 # Initialize session with the correct profile (AWSPowerUserAccess)
-session = boto3.Session(profile_name="AWSPowerUserAccess-586794481131", region_name=AWS_REGION)
+session = boto3.Session(profile_name="AWSPowerUserAccess", region_name=AWS_REGION)
 
 # Initialize DynamoDB resource and tables with the session
 dynamodb = session.resource("dynamodb")
