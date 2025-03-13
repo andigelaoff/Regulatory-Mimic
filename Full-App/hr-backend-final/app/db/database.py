@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 AWS_REGION = "us-east-1"
 
 # Initialize session with the correct profile (AWSPowerUserAccess)
-session = boto3.Session(profile_name="AWSPowerUserAccess", region_name=AWS_REGION)
+session = boto3.Session(profile_name="AWSPowerUserAccess-586794481131", region_name=AWS_REGION)
 
 # Initialize DynamoDB resource and tables with the session
 dynamodb = session.resource("dynamodb")
@@ -110,6 +110,34 @@ def get_chat_history(user_id: str, session_id: str):
         # Query DynamoDB for chat history
         response = chat_table.query(
             KeyConditionExpression=Key(USER_ID_KEY).eq(user_id) & Key(SESSION_ID_TIMESTAMP_KEY).begins_with(f"{session_id}#")
+        )
+        logger.info(f"Retrieved {len(response.get('Items', []))} chat messages for session: {session_id}")
+
+        # Ensure the items are returned with correct keys
+        chat_history = [
+            {
+                "userId": item[USER_ID_KEY],
+                "sessionId": item[SESSION_ID_KEY],
+                "message": item["message"],
+                "bot_response": item["bot_response"],
+                "timestamp": item["timestamp"],
+            }
+            for item in response.get("Items", [])
+        ]
+        return chat_history
+    except Exception as e:
+        logger.error(f"Error retrieving chat history: {str(e)}")
+        raise e
+    
+
+# fucntion to get last 5 messages
+def get_last_5_messages(user_id: str, session_id: str):
+    try:
+        # Query DynamoDB for chat history
+        response = chat_table.query(
+            KeyConditionExpression=Key(USER_ID_KEY).eq(user_id) & Key(SESSION_ID_TIMESTAMP_KEY).begins_with(f"{session_id}#"),
+            ScanIndexForward=False,
+            Limit=5
         )
         logger.info(f"Retrieved {len(response.get('Items', []))} chat messages for session: {session_id}")
 

@@ -13,7 +13,7 @@ import httpx
 import json
 from fastapi import APIRouter, HTTPException, status
 from app.models.schemas import SessionCreateRequest, SessionResponse, ChatMessageRequest, ChatMessageResponse
-from app.db.database import create_session, list_sessions, save_chat_message, get_chat_history
+from app.db.database import create_session, list_sessions, save_chat_message, get_chat_history, get_last_5_messages
 from typing import List
 from app.models.schemas import SignUpResponse, ConfirmSignUpResponse, SignInResponse
 from fastapi import Depends
@@ -43,19 +43,26 @@ async def confirm_sign_up(request: ConfirmSignUpRequest):
 async def sign_in(request: SignInRequest):
     return await cognito.sign_in(request.email, request.password)
 
+@router.get("/test")
+async def test_endpoint(user_sub: str = Depends(cognito.get_current_user), session_id: str = Query(..., title="Session ID")):
+    msg = get_last_5_messages(user_sub, session_id)
+    return {"msg": msg}
 
 @router.get("/ask")
 async def ask_question(
     model: str,
     q: str = Query(..., title="Question"),
     session_id: str = Query(..., title="Session ID"),
-    user_sub: str = Depends(cognito.get_current_user)  # Extract user_sub from the token
+    user_sub: str = Depends(cognito.get_current_user)
+
 ):  
+    msg_list = get_last_5_messages(user_sub, session_id)
+    preloaded_history = []
+    for entry in msg_list:
+        preloaded_history.append({"role": "user", "content": entry["message"]})
+        preloaded_history.append({"role": "assistant", "content": entry["bot_response"]})
     
-    preloaded_history = [
-        {"role": "user", "content": "how much did the company earn last year?"},
-        {"role": "assistant", "content": "The company earned $1.5 million last year."}
-    ]
+    preloaded_history = preloaded_history[::-1]
 
     async def generate_stream():
         

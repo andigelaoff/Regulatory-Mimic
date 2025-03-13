@@ -28,12 +28,15 @@ class StreamingHandler(AsyncCallbackHandler):
         # Enqueue each token as it arrives
         await self.queue.put(token)
 
-async def generate_answer(question: str, model: str, user_id: str, session_id: str, preloaded_history=None):
+async def generate_answer(question: str, model: str, user_id: str, session_id: str, preloaded_history):
 
     timestamp = int(time.time())
     unique_key = f"{session_id}#{timestamp}"
     bot_response = ''
     model="gpt-4o-mini"
+
+    print("AAAAAAAAAAAAAAAAAAAA")
+    print(preloaded_history)
 
     # Temporarily store the user's message
     temp_user_messages[unique_key] = {
@@ -44,13 +47,13 @@ async def generate_answer(question: str, model: str, user_id: str, session_id: s
     }
 
     # Retrieve relevant documents using your OpenSearch function
-    # retrieved_docs = search_opensearch(question)
-    # if not retrieved_docs:
-    #     yield "I could not find relevant information."
-    #     return
+    retrieved_docs = search_opensearch(question)
+    if not retrieved_docs:
+        yield "I could not find relevant information."
+        return
 
-    # contexts = [doc["content"] for doc in retrieved_docs if doc["content"]]
-    contexts = ['']
+    contexts = [doc["content"] for doc in retrieved_docs if doc["content"]]
+    # contexts = ['']
     prompt = generate_prompt(question, contexts)
 
 
